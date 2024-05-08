@@ -52,8 +52,8 @@ class TestProductModel(unittest.TestCase):
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.DEBUG) 
-        #app.logger.setLevel(logging.CRITICAL) #put back in when debug logs no longer needed
+        app.logger.setLevel(logging.DEBUG)
+        # app.logger.setLevel(logging.CRITICAL) #put back in when debug logs no longer needed
         Product.init_db(app)
 
     @classmethod
@@ -105,17 +105,17 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-
     # ADD YOUR TEST CASES HERE
+
     def test_read_a_product(self):
         """Read a product"""
         product = ProductFactory()
         logger.info("Creating product %s", product)
-        product.id = None 
+        product.id = None
         product.create()
         self.assertIsNotNone(product.id)
-        # fetch the product 
-        found_product =Product.find(product.id)
+        # fetch the product
+        found_product = Product.find(product.id)
         self.assertEqual(found_product.id, product.id)
         self.assertEqual(found_product.name, product.name)
         self.assertEqual(found_product.description, product.description)
@@ -126,7 +126,7 @@ class TestProductModel(unittest.TestCase):
         """Update a product"""
         product = ProductFactory()
         logger.info("Creating product %s", product)
-        product.id = None 
+        product.id = None
         product.create()
         logger.info("Product created %s", product)
         product.description = "test description"
@@ -167,10 +167,36 @@ class TestProductModel(unittest.TestCase):
         for _ in range(5):
             product = ProductFactory()
             product.create()
-        all_products = Product.all()   
+        all_products = Product.all()
         first_product_name = all_products[0].name
         count = len([product for product in all_products if product.name == first_product_name])
         found_products = Product.find_by_name(first_product_name)
         self.assertEqual(found_products.count(), count)
         for product in found_products:
             self.assertEqual(product.name, first_product_name)
+
+    def test_find_product_by_availability(self):
+        """Finds a product by availability"""
+        # create 10 products
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        availability_first = products[0].available
+        count = len([product for product in products if product.available == availability_first])
+        found = Product.find_by_availability(availability_first)
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.available, availability_first)
+
+    def test_find_product_by_category(self):
+        """Finds a product by category"""
+        # create 10 products
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        category_first = products[0].category
+        count = len([product for product in products if product.category == category_first])
+        found = Product.find_by_category(category_first)
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.category, category_first)

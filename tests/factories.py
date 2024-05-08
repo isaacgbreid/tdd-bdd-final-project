@@ -44,7 +44,7 @@ class ProductFactory(factory.Factory):
             "Chevy",
             "Hammer",
             "Wrench",
-            "Alfa", 
+            "Alfa",
             "Plants"
         ]
     )
