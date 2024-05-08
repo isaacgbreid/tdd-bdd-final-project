@@ -35,6 +35,9 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
 
 ######################################################################
 #  P R O D U C T   M O D E L   T E S T   C A S E S
@@ -49,7 +52,8 @@ class TestProductModel(unittest.TestCase):
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.CRITICAL)
+        app.logger.setLevel(logging.DEBUG) 
+        #app.logger.setLevel(logging.CRITICAL) #put back in when debug logs no longer needed
         Product.init_db(app)
 
     @classmethod
@@ -101,6 +105,72 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-    #
+
     # ADD YOUR TEST CASES HERE
-    #
+    def test_read_a_product(self):
+        """Read a product"""
+        product = ProductFactory()
+        logger.info("Creating product %s", product)
+        product.id = None 
+        product.create()
+        self.assertIsNotNone(product.id)
+        # fetch the product 
+        found_product =Product.find(product.id)
+        self.assertEqual(found_product.id, product.id)
+        self.assertEqual(found_product.name, product.name)
+        self.assertEqual(found_product.description, product.description)
+        self.assertEqual(found_product.price, product.price)
+        self.assertEqual(found_product.category, product.category)
+
+    def test_update_a_product(self):
+        """Update a product"""
+        product = ProductFactory()
+        logger.info("Creating product %s", product)
+        product.id = None 
+        product.create()
+        logger.info("Product created %s", product)
+        product.description = "test description"
+        original_id = product.id
+        product.update()
+        self.assertEqual(product.id, original_id)
+        self.assertEqual(product.description, "test description")
+        all_products = Product.all()
+        self.assertEqual(len(all_products), 1)
+        self.assertEqual(all_products[0].id, original_id)
+        self.assertEqual(all_products[0].description, "test description")
+
+    def test_delete_a_product(self):
+        """delete a product"""
+        product = ProductFactory()
+        logger.info("Creating product %s", product)
+        product.create()
+        all_products = Product.all()
+        self.assertEqual(len(all_products), 1)
+        product.delete()
+        all_products = Product.all()
+        self.assertEqual(len(all_products), 0)
+
+    def test_list_all_products(self):
+        """list all products"""
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+        # create 5 products
+        for _ in range(5):
+            product = ProductFactory()
+            product.create()
+        products = Product.all()
+        self.assertEqual(len(products), 5)
+
+    def test_find_product_by_name(self):
+        """Finds a product by name"""
+        # create 5 products
+        for _ in range(5):
+            product = ProductFactory()
+            product.create()
+        all_products = Product.all()   
+        first_product_name = all_products[0].name
+        count = len([product for product in all_products if product.name == first_product_name])
+        found_products = Product.find_by_name(first_product_name)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.name, first_product_name)
