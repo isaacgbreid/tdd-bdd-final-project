@@ -74,7 +74,7 @@ Scenario: Update a Product
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "100.00" in the results
-    And I should see not "120.50" in the results
+    And I should not see "120.50" in the results
 
 Scenario: Delete a Product
     When I visit the "Home Page"
@@ -130,4 +130,4 @@ Scenario: Search by name
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "Hat" in the "Name" field
-    And I should see "A red fedora " in the "Description" field
+    And I should see "A red fedora" in the "Description" field
