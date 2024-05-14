@@ -61,7 +61,7 @@ Scenario: Update a Product
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "Blue shoes" in the "Description" field
-    When I set the "Price" to "100.00"
+    When I set the "Name" to "High heels"
     And I press the "Update" button
     Then I should see the message "Success"
     When I copy the "Id" field
@@ -69,12 +69,12 @@ Scenario: Update a Product
     And I paste the "Id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
-    And I should see "100.00" in the "Price" field
+    And I should see "High heels" in the "Name" field
     When I press the "Clear" button
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "100.00" in the results
-    And I should not see "120.50" in the results
+    And I should see "High heels" in the results
+    And I should not see "Shoes" in the results
 
 Scenario: Delete a Product
     When I visit the "Home Page"
