@@ -139,6 +139,13 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(all_products[0].id, original_id)
         self.assertEqual(all_products[0].description, "test description")
 
+    def test_serialize(self):
+        """Test that serialize when called on product returns dict"""
+        product = ProductFactory()
+        logger.info("Creating product %s", product)
+        product_dict = product.serialize()
+        self.assertIsInstance(product_dict, dict)
+
     def test_delete_a_product(self):
         """delete a product"""
         product = ProductFactory()
@@ -200,3 +207,28 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertEqual(product.category, category_first)
+
+    def test_find_product_by_price(self):
+        """Finds a product by price"""
+        # create 5 products
+        for _ in range(5):
+            product = ProductFactory()
+            product.create()
+        all_products = Product.all()
+        first_product_price = all_products[0].price
+        count = len([product for product in all_products if product.price == first_product_price])
+        found_products = Product.find_by_price(first_product_price)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.price, first_product_price)
+
+    def test_find_product_by_price2(self):
+        """Finds a product by price check the decimal conversion"""
+        product = ProductFactory()
+        product.create()
+        string_price = '8.45'
+        product.price = string_price
+        product.update()
+        found_products = Product.find_by_price(string_price)
+        for item in found_products:
+            self.assertEqual(product.price, item.price)
